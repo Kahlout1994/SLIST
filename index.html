@@ -155,6 +155,7 @@ tbody tr:hover{background:#1c2128;}
 
 <!-- ── FILTER BAR ── -->
 <div class="filter-bar">
+  <div class="fg"><label>Month</label><select id="fMonth" onchange="applyFilters()"><option value="">All Months</option></select></div>
   <div class="fg"><label>Week</label><select id="fWeek" onchange="applyFilters()"><option value="">All Weeks</option></select></div>
   <div class="filter-sep"></div>
   <div class="fg"><label>Region</label><select id="fRegion" onchange="onRegionChange()"><option value="">All Regions</option></select></div>
@@ -194,8 +195,6 @@ tbody tr:hover{background:#1c2128;}
   <button class="tab-btn active" onclick="switchTab('exec',this)">Executive Overview</button>
   <button class="tab-btn" onclick="switchTab('sellout',this)">Sellout Performance</button>
   <button class="tab-btn" onclick="switchTab('visits',this)">Visits Performance</button>
-  <button class="tab-btn" onclick="switchTab('activation',this)">Activation Tracking</button>
-  <button class="tab-btn" onclick="switchTab('market',this)">Market Sensing</button>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════ -->
@@ -303,61 +302,6 @@ tbody tr:hover{background:#1c2128;}
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════ -->
-<!-- TAB 4: ACTIVATION TRACKING -->
-<!-- ═══════════════════════════════════════════════════════ -->
-<div id="tab-activation" class="tab-content">
-  <div class="section">
-    <div class="section-hdr"><div class="section-title">Activation Summary by Region</div><span class="section-badge" id="actMaxWkBadge"></span></div>
-    <div class="tbl-wrap"><table><thead id="actRegHead"></thead><tbody id="actRegBody"></tbody></table></div>
-  </div>
-  <div class="two-col">
-    <div class="section">
-      <div class="section-hdr">
-        <div class="section-title">Newly Activated This Week</div>
-        <span class="section-badge" id="newlyActBadge"></span>
-      </div>
-      <div class="tbl-wrap"><table><thead id="newlyActHead"></thead><tbody id="newlyActBody"></tbody></table></div>
-    </div>
-    <div class="section">
-      <div class="section-hdr">
-        <div class="section-title">Active Channels</div>
-        <span class="section-badge" id="activeChBadge"></span>
-      </div>
-      <div class="tbl-wrap"><table><thead id="activeChHead"></thead><tbody id="activeChBody"></tbody></table></div>
-    </div>
-  </div>
-  <div class="section">
-    <div class="section-hdr">
-      <div class="section-title">Inactive Channels — Action Required</div>
-      <span class="section-badge" id="inactiveChBadge"></span>
-    </div>
-    <div class="tbl-wrap"><table><thead id="inactiveChHead"></thead><tbody id="inactiveChBody"></tbody></table></div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════ -->
-<!-- TAB 5: MARKET SENSING -->
-<!-- ═══════════════════════════════════════════════════════ -->
-<div id="tab-market" class="tab-content">
-  <div class="two-col">
-    <div class="section">
-      <div class="section-hdr"><div class="section-title">Activity Summary</div></div>
-      <div class="tbl-wrap"><table><thead id="msSummHead"></thead><tbody id="msSummBody"></tbody></table></div>
-    </div>
-    <div class="section">
-      <div class="section-hdr"><div class="section-title">Competitor Brand Observations</div></div>
-      <div class="tbl-wrap"><table><thead id="msBrandHead"></thead><tbody id="msBrandBody"></tbody></table></div>
-    </div>
-  </div>
-  <div class="section">
-    <div class="section-hdr">
-      <div class="section-title">All Market Sensing Records</div>
-      <span class="section-badge" id="msAllBadge"></span>
-    </div>
-    <div class="tbl-wrap"><table><thead id="msAllHead"></thead><tbody id="msAllBody"></tbody></table></div>
-  </div>
-</div>
 
 </div><!-- /app -->
 
@@ -2245,7 +2189,7 @@ const RAW_PIC_TARGET=[{"pic":"Tamer","region":"Central","month":"2026-06","targe
 // ============================================================
 // FILTER STATE
 // ============================================================
-let F={week:null,region:null,city:null,user:null,channel:null,status:null,category:null,type:null};
+let F={week:null,month:null,region:null,city:null,user:null,channel:null,status:null,category:null,type:null};
 
 // ============================================================
 // PERFORMANCE CACHE — invalidated on any filter change
@@ -2269,8 +2213,6 @@ function renderTab(id){
   if(id==='exec')renderExec();
   else if(id==='sellout')renderSellout();
   else if(id==='visits')renderVisits();
-  else if(id==='activation')renderActivation();
-  else if(id==='market')renderMarket();
 }
 
 // ============================================================
@@ -2375,6 +2317,7 @@ function onRegionChange(){
 }
 function applyFilters(){
   F.week=parseInt(document.getElementById('fWeek').value)||null;
+  F.month=document.getElementById('fMonth').value||null;
   F.region=document.getElementById('fRegion').value||null;
   F.city=document.getElementById('fCity').value||null;
   F.user=document.getElementById('fUser').value||null;
@@ -2383,15 +2326,15 @@ function applyFilters(){
   F.category=document.getElementById('fCategory').value||null;
   F.type=document.getElementById('fType').value||null;
   invalidateCache();
-  renderExec();renderSellout();renderVisits();renderActivation();renderMarket();
+  renderExec();renderSellout();renderVisits();
   updateHeader();
 }
 function resetFilters(){
-  ['fWeek','fRegion','fCity','fUser','fChannel','fStatus','fCategory','fType'].forEach(id=>document.getElementById(id).value='');
+  ['fWeek','fMonth','fRegion','fCity','fUser','fChannel','fStatus','fCategory','fType'].forEach(id=>document.getElementById(id).value='');
   populateCityDropdown(null);
-  F={week:null,region:null,city:null,user:null,channel:null,status:null,category:null,type:null};
+  F={week:null,month:null,region:null,city:null,user:null,channel:null,status:null,category:null,type:null};
   invalidateCache();
-  renderExec();renderSellout();renderVisits();renderActivation();renderMarket();
+  renderExec();renderSellout();renderVisits();
   updateHeader();
 }
 
@@ -2403,6 +2346,7 @@ function fSell(overrideWeek){
   const wk=overrideWeek!==undefined?overrideWeek:F.week;
   return RAW_SELLOUT.filter(r=>{
     if(wk!==null&&r.week!==wk)return false;
+    if(F.month&&r.date&&r.date.substring(0,7)!==F.month)return false;
     if(F.region&&r.region!==F.region)return false;
     if(F.city&&r.city!==F.city)return false;
     if(F.user&&r.supervisor!==F.user)return false;
@@ -2416,6 +2360,7 @@ function fVis(overrideWeek){
   const wk=overrideWeek!==undefined?overrideWeek:F.week;
   return RAW_VISITS.filter(r=>{
     if(wk!==null&&r.week!==wk)return false;
+    if(F.month&&r.date&&r.date.substring(0,7)!==F.month)return false;
     if(F.region&&r.region!==F.region)return false;
     if(F.city&&r.city!==F.city)return false;
     if(F.user&&r.supervisor!==F.user)return false;
@@ -2519,6 +2464,16 @@ function computeActivation(){
 // INIT DROPDOWNS
 // ============================================================
 function initFilters(){
+  // Month dropdown
+  const mthSel=document.getElementById('fMonth');
+  [...new Set(RAW_SELLOUT.map(r=>r.date?r.date.substring(0,7):null).filter(Boolean))].sort().forEach(m=>{
+    const o=document.createElement('option');
+    o.value=m;
+    const d=new Date(m+'-02');
+    o.textContent=d.toLocaleDateString('en-US',{month:'short',year:'numeric'});
+    mthSel.appendChild(o);
+  });
+
   // Week dropdown
   const wSel=document.getElementById('fWeek');
   ALL_WEEKS.forEach(w=>{
@@ -2600,13 +2555,15 @@ function updateHeader(){
 // PIC TARGET HELPERS
 // ============================================================
 function computePicTargetMTD(){
-  // Always uses the latest month present in ALL sellout — week filter is ignored
+  // Uses F.month if set; otherwise latest month present in ALL sellout — week filter is ignored
   if(typeof RAW_PIC_TARGET==='undefined'||!RAW_PIC_TARGET.length)return null;
-  // Step 1: find latest month across entire RAW_SELLOUT (no filters)
-  let latestMonth=null;
-  RAW_SELLOUT.forEach(r=>{
-    if(r.date){const m=r.date.substring(0,7);if(!latestMonth||m>latestMonth)latestMonth=m;}
-  });
+  // Step 1: determine target month
+  let latestMonth=F.month||null;
+  if(!latestMonth){
+    RAW_SELLOUT.forEach(r=>{
+      if(r.date){const m=r.date.substring(0,7);if(!latestMonth||m>latestMonth)latestMonth=m;}
+    });
+  }
   if(!latestMonth)return null;
   // Step 2: MTD actual — latest month only, respect Region + PIC filters, ignore week
   const mtdSell=RAW_SELLOUT.filter(r=>{
@@ -2638,11 +2595,13 @@ function renderPicTargetTable(){
   if(!sect)return;
   if(typeof RAW_PIC_TARGET==='undefined'||!RAW_PIC_TARGET.length){sect.style.display='none';return;}
   sect.style.display='';
-  // Always use latest month from all sellout — ignore week filter
-  let latestMonth=null;
-  RAW_SELLOUT.forEach(r=>{
-    if(r.date){const m=r.date.substring(0,7);if(!latestMonth||m>latestMonth)latestMonth=m;}
-  });
+  // Use F.month if set; otherwise latest month from all sellout — ignore week filter
+  let latestMonth=F.month||null;
+  if(!latestMonth){
+    RAW_SELLOUT.forEach(r=>{
+      if(r.date){const m=r.date.substring(0,7);if(!latestMonth||m>latestMonth)latestMonth=m;}
+    });
+  }
   if(!latestMonth){sect.style.display='none';return;}
   // MTD sellout per PIC×Region (latest month, Region+PIC filters, no week filter)
   const mtdSell=RAW_SELLOUT.filter(r=>{
